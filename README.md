@@ -2,13 +2,13 @@
 
 **A job-search operating system that runs on your own Claude, with no AI inside.**
 
-Your Claude does the research and writing: finding companies, contacts and openings, reading your résumé, drafting outreach. JobHunt OS does everything else: it stores it, lets you edit it, tracks status and follow-ups, scores your résumé against each JD, works out your skill gaps, and tells you what to do today. It keeps working after the chat ends.
+Your Claude does the research and writing: finding companies, contacts and openings, reading your resume, drafting outreach. JobHunt OS does everything else: it stores it, lets you edit it, tracks status and follow-ups, scores your resume against each JD, works out your skill gaps, and tells you what to do today. It keeps working after the chat ends.
 
 ## Three tracks + Today
 
 - **Outbound**: companies → research playbook → contacts (HR / alumni / leader) → drafts → sent → replied, with automatic follow-up dates.
-- **Inbound**: openings, programmes and applications on one board, each with a **local ATS score** (keyword match + résumé hygiene checks).
-- **Projects**: **gap analysis** for each target role (rule-based skill taxonomy vs your résumé and projects), plus project templates that close the gaps.
+- **Applications**: openings, programmes and applications on one board, each with a **local ATS score** (keyword match + resume hygiene checks).
+- **Projects**: **gap analysis** for each target role (rule-based skill taxonomy vs your resume and projects), plus project templates that close the gaps.
 - **Today**: one rule-based to-do list across all tracks, plus weekly targets.
 
 ## No AI inside

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Upload, Save } from 'lucide-react';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
-import { PageHead, ClaudePrompt } from '../ui.jsx';
+import { PageHead, McpPrompt } from '../ui.jsx';
 
 const csv = (a) => (a || []).join(', ');
 const arr = (s) => (s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -31,20 +31,20 @@ export default function Profile() {
   };
   const upload = async (file) => {
     const form = new FormData(); form.append('file', file);
-    try { await api('/profile/resume-pdf', { method: 'POST', form }); await reload(); setMsg('Résumé text extracted from PDF.'); }
+    try { await api('/profile/resume-pdf', { method: 'POST', form }); await reload(); setMsg('Resume text extracted from PDF.'); }
     catch (e) { setMsg(e.message); }
   };
   const field = (k, label, props = {}) => (
-    <div><label className="label">{label}</label><input className="input" value={v[k] ?? ''} onChange={(e) => setV({ ...v, [k]: e.target.value })} {...props} /></div>
+    <div><label className="label" htmlFor={`profile-${k}`}>{label}</label><input id={`profile-${k}`} name={k} className="input" value={v[k] ?? ''} onChange={(e) => setV({ ...v, [k]: e.target.value })} {...props} /></div>
   );
 
   return (
     <div>
-      <PageHead title="Profile" sub="Your direction. Everything else (gaps, ATS, Today, Claude's drafts) is built on this.">
+      <PageHead title="Profile" sub="Your direction. Your match scores, company priorities, and next actions are built on this.">
         {msg && <span className="text-sm text-emerald-600 self-center">{msg}</span>}
         <button className="btn-primary" onClick={save}><Save size={14} />Save profile</button>
       </PageHead>
-      {!p.resume_text && <div className="mb-4"><ClaudePrompt text="Here's my résumé (attached). Read it and fill in my JobHunt profile: headline, college, skills, and the target roles that fit me best." /></div>}
+      {!p.resume_text && <div className="mb-4"><McpPrompt text="Here's my resume (attached). Read it and fill in my JobHunt profile: headline, college, skills, and the target roles that fit me best." /></div>}
 
       <div className="grid md:grid-cols-2 gap-5">
         <section className="card p-5 space-y-4">
@@ -54,7 +54,7 @@ export default function Profile() {
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(meta?.roles || {}).map(([k, r]) => {
                 const on = (v.target_roles || []).includes(k);
-                return <button key={k} onClick={() => toggleRole(k)} className={`chip !px-3 !py-1 border ${on ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-400'}`}>{r.label}</button>;
+                return <button key={k} onClick={() => toggleRole(k)} className={`chip !px-3 !py-1 border ${on ? 'bg-[#0f6b4f] text-white border-[#0f6b4f]' : 'bg-white text-slate-600 border-slate-300 hover:border-[#0f6b4f]'}`}>{r.label}</button>;
               })}
             </div>
           </div>
@@ -80,11 +80,11 @@ export default function Profile() {
 
         <section className="card p-5 md:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <h2 className="font-semibold">3. Résumé</h2>
+            <h2 className="font-semibold">3. Resume</h2>
             <label className="btn-outline cursor-pointer"><Upload size={14} />Upload PDF<input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files[0] && upload(e.target.files[0])} /></label>
           </div>
-          <p className="text-xs text-slate-500 mb-2">Plain text is enough. We use it for the ATS score, the gap analysis, and as context for Claude's drafts.</p>
-          <textarea className="input font-mono text-xs" rows={16} value={v.resume_text || ''} onChange={(e) => setV({ ...v, resume_text: e.target.value })} placeholder="Paste your résumé text here…" />
+          <p className="text-xs text-slate-500 mb-2">Plain text is enough. It powers local ATS scoring and gap analysis, and provides context when you use your connected assistant.</p>
+          <textarea id="resume-text" name="resume_text" aria-label="Resume text" className="input font-mono text-xs" rows={16} value={v.resume_text || ''} onChange={(e) => setV({ ...v, resume_text: e.target.value })} placeholder="Paste your resume text here…" />
         </section>
       </div>
     </div>

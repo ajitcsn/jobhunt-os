@@ -2,14 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-slate-50 text-slate-800 antialiased; }
-.card { @apply bg-white border border-slate-200 rounded-xl; }
-.btn { @apply inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition disabled:opacity-50; }
-.btn-primary { @apply btn bg-indigo-600 text-white hover:bg-indigo-700; }
-.btn-ghost { @apply btn text-slate-600 hover:bg-slate-100; }
-.btn-outline { @apply btn border border-slate-300 bg-white hover:bg-slate-50; }
-.input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400; }
+html { color-scheme: light; }
+body { @apply bg-[#f7f8f4] text-[#17211d] antialiased; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.card { @apply bg-white border border-[#dce3dc] rounded-xl shadow-[0_1px_2px_rgba(23,33,29,0.03)]; }
+.btn { @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6b4f] focus-visible:ring-offset-2; }
+.btn-primary { @apply btn bg-[#0f6b4f] text-white hover:bg-[#0b573f]; }
+.btn-ghost { @apply btn text-slate-600 hover:bg-[#eef3ee]; }
+.btn-outline { @apply btn border border-[#cbd6cd] bg-white hover:bg-[#f3f7f3]; }
+.input { @apply w-full rounded-lg border border-[#cbd6cd] bg-white px-3 py-2 text-sm text-[#17211d] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b8d9ca] focus:border-[#0f6b4f]; }
 .label { @apply block text-xs font-medium text-slate-500 mb-1; }
 .chip { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium; }
-@keyframes flash { from { background: #ede9fe; } to { background: transparent; } }
+@keyframes flash { from { background: #e6f3ec; } to { background: transparent; } }
 .flash { animation: flash 3s ease-out; }
+@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }

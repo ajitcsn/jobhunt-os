@@ -1,13 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
-import { Sun, Send, Inbox, FolderKanban, User, Plug, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Building2, BriefcaseBusiness, FileText, Compass, Send, User, Plug, LogOut, Cable } from 'lucide-react';
 import { api, auth } from './api.js';
 import Login from './pages/Login.jsx';
 import Today from './pages/Today.jsx';
 import Outbound from './pages/Outbound.jsx';
 import Company from './pages/Company.jsx';
-import InboundPage from './pages/Inbound.jsx';
+import Applications from './pages/Inbound.jsx';
 import Projects from './pages/Projects.jsx';
+import CareerAssets from './pages/CareerAssets.jsx';
+import CareerPages from './pages/CareerPages.jsx';
+import Drafts from './pages/Drafts.jsx';
 import Profile from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
 
@@ -19,7 +22,7 @@ function Shell() {
   const [data, setData] = useState(null);
   const [meta, setMeta] = useState(null);
   const [toasts, setToasts] = useState([]);
-  const [tick, setTick] = useState(0); // bumps when Claude changes something, so open pages refetch
+  const [tick, setTick] = useState(0);
   const lastId = useRef(null);
   const nav = useNavigate();
 
@@ -31,7 +34,7 @@ function Shell() {
     reload();
   }, [reload]);
 
-  // Live feel: poll the activity log; when Claude adds something, toast it and refresh.
+  // Keep MCP-created records visible while the connected conversation is working.
   useEffect(() => {
     let alive = true;
     const poll = async () => {
@@ -46,7 +49,7 @@ function Shell() {
             fromClaude.forEach((r) => (byType[r.entity_type] = (byType[r.entity_type] || 0) + 1));
             const msg = Object.entries(byType).map(([t, n]) => `${n} ${n > 1 ? ({ company: 'companies', research: 'research', profile: 'profile' }[t] || t + 's') : t}`).join(', ');
             const id = Date.now();
-            setToasts((t) => [...t, { id, msg: `Claude added/updated ${msg}` }]);
+            setToasts((t) => [...t, { id, msg: `Your connected assistant updated ${msg}` }]);
             setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 5000);
           }
           await reload();
@@ -61,12 +64,14 @@ function Shell() {
 
   const nItems = data?.today?.items?.length;
   const links = [
-    { to: '/', label: 'Today', icon: Sun, badge: nItems },
-    { to: '/outbound', label: 'Outbound', icon: Send },
-    { to: '/inbound', label: 'Inbound', icon: Inbox },
-    { to: '/projects', label: 'Projects', icon: FolderKanban },
+    { to: '/', label: 'Command center', icon: LayoutDashboard, badge: nItems },
+    { to: '/outbound', label: 'Companies', icon: Building2 },
+    { to: '/applications', label: 'Applications', icon: BriefcaseBusiness },
+    { to: '/assets', label: 'Resumes & skills', icon: FileText },
+    { to: '/career-pages', label: 'Career pages', icon: Compass },
+    { to: '/drafts', label: 'Drafts', icon: Send },
     { to: '/profile', label: 'Profile', icon: User },
-    { to: '/settings', label: 'Connect Claude', icon: Plug },
+    { to: '/settings', label: 'Connect MCP', icon: Plug },
   ];
 
   return (
@@ -74,15 +79,15 @@ function Shell() {
       <div className="min-h-screen md:flex">
         <aside className="md:w-56 md:min-h-screen bg-white border-b md:border-b-0 md:border-r border-slate-200 md:sticky md:top-0 md:h-screen flex md:flex-col">
           <div className="px-4 py-4 hidden md:block">
-            <div className="font-bold text-slate-900 flex items-center gap-2"><span className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center text-sm">J</span>JobHunt OS</div>
-            <p className="text-[11px] text-slate-400 mt-1">Runs on your Claude</p>
+            <div className="font-bold text-[#17211d] flex items-center gap-2"><span className="w-7 h-7 rounded-lg bg-[#0f6b4f] text-white grid place-items-center text-sm">J</span>JobHunt OS</div>
+            <p className="text-[11px] text-slate-400 mt-1">Your job-search operating system</p>
           </div>
           <nav className="flex md:flex-col gap-0.5 px-2 py-2 overflow-x-auto flex-1">
             {links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.to === '/'} className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm whitespace-nowrap ${isActive ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}>
+                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6b4f] ${isActive ? 'bg-[#e4f1e9] text-[#0d6046] font-semibold' : 'text-slate-600 hover:bg-[#eef3ee]'}`}>
                 <l.icon size={16} />{l.label}
-                {!!l.badge && <span className="ml-auto chip bg-indigo-600 text-white">{l.badge}</span>}
+                {!!l.badge && <span className="ml-auto chip bg-[#0f6b4f] text-white">{l.badge}</span>}
               </NavLink>
             ))}
           </nav>
@@ -91,13 +96,17 @@ function Shell() {
             <button className="btn-ghost !px-0 mt-1" onClick={() => { auth.clear(); nav('/login'); }}><LogOut size={14} />Log out</button>
           </div>
         </aside>
-        <main className="flex-1 min-w-0 p-4 md:p-8 max-w-6xl">
+        <main id="main-content" className="flex-1 min-w-0 p-4 md:p-8 max-w-7xl">
           {!data ? <p className="text-slate-400">Loading…</p> : (
             <Routes>
               <Route path="/" element={<Today />} />
               <Route path="/outbound" element={<Outbound />} />
               <Route path="/outbound/companies/:id" element={<Company />} />
-              <Route path="/inbound" element={<InboundPage />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/inbound" element={<Navigate to="/applications" replace />} />
+              <Route path="/assets" element={<CareerAssets />} />
+              <Route path="/career-pages" element={<CareerPages />} />
+              <Route path="/drafts" element={<Drafts />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
@@ -108,8 +117,8 @@ function Shell() {
       </div>
       <div className="fixed bottom-4 right-4 space-y-2 z-50">
         {toasts.map((t) => (
-          <div key={t.id} className="card shadow-lg px-4 py-3 text-sm flex items-center gap-2 border-violet-200 bg-violet-50 text-violet-900">
-            <Sparkles size={16} className="text-violet-600" />{t.msg}
+          <div key={t.id} role="status" aria-live="polite" className="card shadow-lg px-4 py-3 text-sm flex items-center gap-2 border-[#bcd9c6] bg-[#eef6f0] text-[#173d2d]">
+            <Cable size={16} className="text-[#0f6b4f]" aria-hidden="true" />{t.msg}
           </div>
         ))}
       </div>

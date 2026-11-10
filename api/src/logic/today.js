@@ -29,8 +29,8 @@ export function buildToday({ profile, companies, contacts, drafts, openings, pro
 
   // 1. Onboarding
   if (!profile?.resume_text || !(profile?.target_roles || []).length) {
-    add({ key: 'onboarding', track: 'profile', priority: 100, title: 'Finish onboarding: add your résumé and target roles', link: '/profile',
-      prompt: 'Here is my résumé (attached). Read it and update my JobHunt profile: headline, skills, education, and suggest target roles.' });
+    add({ key: 'onboarding', track: 'profile', priority: 100, title: 'Finish onboarding: add your resume and target roles', link: '/profile',
+      prompt: 'Here is my resume (attached). Read it and update my JobHunt profile: headline, skills, education, and suggest target roles.' });
   }
 
   // 2. Drafts waiting to be sent

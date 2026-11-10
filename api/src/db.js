@@ -70,6 +70,23 @@ create table if not exists projects (
   last_activity_at timestamptz default now(),
   created_at timestamptz default now(), updated_at timestamptz default now()
 );
+create table if not exists resumes (
+  id serial primary key, user_id int not null references users(id) on delete cascade,
+  name text not null, target_role text, summary text, content text default '', is_default boolean default false,
+  created_at timestamptz default now(), updated_at timestamptz default now()
+);
+create table if not exists career_pages (
+  id serial primary key, user_id int not null references users(id) on delete cascade,
+  company_id int references companies(id) on delete set null,
+  name text not null, url text not null, cadence text default 'weekly', last_checked_on date, notes text,
+  created_at timestamptz default now(), updated_at timestamptz default now(),
+  unique(user_id, url)
+);
+create table if not exists message_templates (
+  id serial primary key, user_id int not null references users(id) on delete cascade,
+  name text not null, channel text default 'email', contact_type text default 'other', subject text, body text not null,
+  created_at timestamptz default now(), updated_at timestamptz default now()
+);
 create table if not exists activity_log (
   id serial primary key, user_id int not null references users(id) on delete cascade,
   entity_type text, entity_id int, action text, label text, source text, at timestamptz default now()

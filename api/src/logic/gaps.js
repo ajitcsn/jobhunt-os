@@ -1,5 +1,5 @@
 // Gap analysis: compare the skills a target role needs with the evidence in the user's
-// résumé, profile skills and projects. Deterministic.
+// Resume, profile skills and projects. Deterministic.
 import { ROLES, SKILLS, norm, roleLabel, skillLabel } from './taxonomy.js';
 
 export function skillCoverage(profile = {}, projects = []) {

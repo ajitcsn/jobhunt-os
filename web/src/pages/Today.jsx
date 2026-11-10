@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
-import { Check, Clock, Send, Inbox, FolderKanban, User, PartyPopper } from 'lucide-react';
+import { Check, Clock, Send, BriefcaseBusiness, FolderKanban, User, CircleCheckBig } from 'lucide-react';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
 import { PageHead, CopyButton, Empty } from '../ui.jsx';
 
 const TRACK = {
   outbound: { icon: Send, label: 'Outbound', c: 'text-sky-600 bg-sky-50' },
-  inbound: { icon: Inbox, label: 'Inbound', c: 'text-emerald-600 bg-emerald-50' },
+  inbound: { icon: BriefcaseBusiness, label: 'Applications', c: 'text-emerald-600 bg-emerald-50' },
   projects: { icon: FolderKanban, label: 'Projects', c: 'text-amber-600 bg-amber-50' },
-  profile: { icon: User, label: 'Profile', c: 'text-indigo-600 bg-indigo-50' },
+  profile: { icon: User, label: 'Profile', c: 'text-[#0f6b4f] bg-[#e4f1e9]' },
 };
 
 function Bar({ label, done, target }) {
@@ -16,7 +16,7 @@ function Bar({ label, done, target }) {
   return (
     <div className="card p-4 flex-1 min-w-[200px]">
       <div className="flex justify-between text-sm"><span className="text-slate-500">{label}</span><span className="font-semibold">{done} / {target}</span></div>
-      <div className="h-2 bg-slate-100 rounded-full mt-2"><div className="h-2 bg-indigo-500 rounded-full transition-all" style={{ width: pct + '%' }} /></div>
+      <div className="h-2 bg-slate-100 rounded-full mt-2"><div className="h-2 bg-[#0f6b4f] rounded-full transition-[width] duration-150" style={{ width: pct + '%' }} /></div>
     </div>
   );
 }
@@ -32,7 +32,7 @@ export default function Today() {
 
   return (
     <div>
-      <PageHead title={`Today${me?.name ? `, ${me.name.split(' ')[0]}` : ''}`} sub={`${items.length} thing${items.length === 1 ? '' : 's'} to move your search forward`} />
+      <PageHead title={`Command center${me?.name ? `, ${me.name.split(' ')[0]}` : ''}`} sub={`${items.length} action${items.length === 1 ? '' : 's'} that move your search forward this week`} />
       <div className="flex flex-wrap gap-3 mb-6">
         <Bar label="Outreach sent this week" {...progress.outreach} />
         <Bar label="Applications this week" {...progress.applications} />
@@ -43,7 +43,7 @@ export default function Today() {
       </div>
 
       {!items.length ? (
-        <Empty icon={PartyPopper} title="All clear for today">Ask Claude to find new companies or openings, and they'll show up here.</Empty>
+        <Empty icon={CircleCheckBig} title="All clear for today">Use your connected assistant to add companies or applications when you are ready for the next move.</Empty>
       ) : (
         <div className="space-y-2">
           {items.map((it) => {
@@ -56,8 +56,8 @@ export default function Today() {
                   <div className="text-xs text-slate-500">{T.label}{it.detail ? ` · ${it.detail}` : ''}</div>
                 </Link>
                 <div className="flex gap-1.5">
-                  {it.prompt && <CopyButton text={it.prompt} label="Do it with Claude" className="btn-outline !text-violet-700 !border-violet-200" />}
-                  <button className="btn-ghost" title="Snooze 1 day" onClick={() => mark(it.key, 1)}><Clock size={14} /></button>
+                  {it.prompt && <CopyButton text={it.prompt} label="Copy prompt" className="btn-outline !text-[#0f6b4f] !border-[#b8d9ca]" />}
+                  <button className="btn-ghost" aria-label="Snooze for 1 day" title="Snooze 1 day" onClick={() => mark(it.key, 1)}><Clock size={14} /></button>
                   <button className="btn-outline" onClick={() => mark(it.key)}><Check size={14} />Done</button>
                 </div>
               </div>

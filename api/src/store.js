@@ -210,6 +210,33 @@ export async function listOpenings(userId) {
   return q(`select o.*, c.name as company_name from openings o left join companies c on c.id=o.company_id where o.user_id=$1 order by o.deadline nulls last, o.id desc`, [userId]);
 }
 
+// ---------- career assets ----------
+export async function listResumes(userId) { return q('select * from resumes where user_id=$1 order by is_default desc, updated_at desc', [userId]); }
+export async function saveResume(userId, data) {
+  if (data.is_default) await q('update resumes set is_default=false where user_id=$1', [userId]);
+  const row = data.id
+    ? await updateRow('resumes', userId, data.id, pick(data, ['name', 'target_role', 'summary', 'content', 'is_default']))
+    : await one('insert into resumes (user_id,name,target_role,summary,content,is_default) values ($1,$2,$3,$4,$5,$6) returning *', [userId, data.name, data.target_role, data.summary, data.content || '', !!data.is_default]);
+  await log(userId, 'resume', row.id, data.id ? 'updated' : 'created', row.name);
+  return row;
+}
+export async function listCareerPages(userId) { return q('select cp.*, c.name company_name from career_pages cp left join companies c on c.id=cp.company_id where cp.user_id=$1 order by cp.last_checked_on nulls first, cp.name', [userId]); }
+export async function saveCareerPage(userId, data) {
+  const co = await ensureCompany(userId, data.company_id ?? data.company, 'manual');
+  const fields = { name: data.name, url: data.url, cadence: data.cadence, last_checked_on: data.last_checked_on || null, notes: data.notes, company_id: co?.id || data.company_id || null };
+  const row = data.id ? await updateRow('career_pages', userId, data.id, pick(fields, Object.keys(fields)))
+    : await one('insert into career_pages (user_id,company_id,name,url,cadence,last_checked_on,notes) values ($1,$2,$3,$4,$5,$6,$7) returning *', [userId, fields.company_id, fields.name, fields.url, fields.cadence || 'weekly', fields.last_checked_on, fields.notes]);
+  await log(userId, 'career_page', row.id, data.id ? 'updated' : 'created', row.name);
+  return row;
+}
+export async function listTemplates(userId) { return q('select * from message_templates where user_id=$1 order by channel, contact_type, name', [userId]); }
+export async function saveTemplate(userId, data) {
+  const row = data.id ? await updateRow('message_templates', userId, data.id, pick(data, ['name', 'channel', 'contact_type', 'subject', 'body']))
+    : await one('insert into message_templates (user_id,name,channel,contact_type,subject,body) values ($1,$2,$3,$4,$5,$6) returning *', [userId, data.name, data.channel || 'email', data.contact_type || 'other', data.subject, data.body]);
+  await log(userId, 'template', row.id, data.id ? 'updated' : 'created', row.name);
+  return row;
+}
+
 // ---------- projects ----------
 export const PROJECT_FIELDS = ['title', 'target_role', 'skills_covered', 'description', 'status', 'milestones', 'link'];
 export async function addProject(userId, p, source = 'manual') {
@@ -234,7 +261,7 @@ export async function updateProject(userId, id, data, source = 'manual') {
 }
 
 // ---------- delete ----------
-const TABLES = { company: 'companies', contact: 'contacts', draft: 'drafts', opening: 'openings', project: 'projects' };
+const TABLES = { company: 'companies', contact: 'contacts', draft: 'drafts', opening: 'openings', project: 'projects', resume: 'resumes', career_page: 'career_pages', template: 'message_templates' };
 export async function remove(userId, type, id) {
   const t = TABLES[type];
   if (!t) throw new Error('bad type');
@@ -243,19 +270,22 @@ export async function remove(userId, type, id) {
 
 // ---------- overview ----------
 export async function loadAll(userId) {
-  const [profile, companies, contacts, drafts, openings, projects, doneRows] = await Promise.all([
+  const [profile, companies, contacts, drafts, openings, projects, resumes, careerPages, templates, doneRows] = await Promise.all([
     getProfile(userId),
     listCompanies(userId),
     q('select * from contacts where user_id=$1', [userId]),
     q('select * from drafts where user_id=$1', [userId]),
     listOpenings(userId),
     q('select * from projects where user_id=$1 order by id', [userId]),
+    listResumes(userId),
+    listCareerPages(userId),
+    listTemplates(userId),
     q('select key, until from today_done where user_id=$1', [userId]),
   ]);
   const gaps = allGaps(profile, projects);
   const done = Object.fromEntries(doneRows.map((r) => [r.key, r.until]));
   const today = buildToday({ profile, companies, contacts, drafts, openings, projects, gaps, done });
-  return { profile, companies, contacts, drafts, openings, projects, gaps, today };
+  return { profile, companies, contacts, drafts, openings, projects, resumes, careerPages, templates, gaps, today };
 }
 
 export async function markToday(userId, key, days = 0) {

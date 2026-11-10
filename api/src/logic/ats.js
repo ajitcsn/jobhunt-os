@@ -1,4 +1,4 @@
-// Local, deterministic ATS-style résumé ↔ JD match. No AI.
+// Local, deterministic ATS-style resume ↔ JD match. No AI.
 import { SKILLS, norm, skillsInText, skillLabel } from './taxonomy.js';
 
 const STOP = new Set(`a an and are as at be by for from has have in is it its of on or that the to was were will with you your we our us they their this these those who what which when where how all any can may must should would could about into over under than then also such other more most very not no yes per via etc e.g i.e role team work working experience years year job candidate candidates ability strong good great excellent including include includes using use used new across within based well looking join company opportunity responsibilities requirements preferred plus skills skill knowledge understanding help make ensure provide support day one`.split(/\s+/));

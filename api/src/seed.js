@@ -69,7 +69,7 @@ async function main() {
   });
   const priya = await S.addContact(id, { company_id: razorpay.id, name: 'Priya S. (sample)', role_title: 'Talent Partner, Product & Analytics', type: 'hr', notes: 'Sample contact for the demo' });
   const d1 = await S.addDraft(id, { contact_id: priya.id, channel: 'email', subject: 'Product analyst roles: risk analytics background',
-    body: 'Hi Priya,\n\nI spent two years in risk analytics on a 4M-account card portfolio, where I ran champion/challenger tests that cut losses by $2.1M a year. I\'m moving into product analytics and Razorpay\'s SME credit work is exactly where I\'d like to apply that.\n\nAre you hiring product analysts this quarter? Happy to share my résumé.\n\nThanks,\nAarav' });
+    body: 'Hi Priya,\n\nI spent two years in risk analytics on a 4M-account card portfolio, where I ran champion/challenger tests that cut losses by $2.1M a year. I\'m moving into product analytics and Razorpay\'s SME credit work is exactly where I\'d like to apply that.\n\nAre you hiring product analysts this quarter? Happy to share my resume.\n\nThanks,\nAarav' });
   await S.updateDraft(id, d1.id, { status: 'sent' });
   await q('update drafts set sent_at=$2, follow_up_on=$3 where id=$1', [d1.id, days(-5), days(0)]); // follow-up due today
 

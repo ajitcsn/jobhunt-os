@@ -82,6 +82,17 @@ r.post('/profile/resume-pdf', auth, upload.single('file'), wrap(async (req) => {
   return S.updateProfile(req.uid, { resume_text: data.text.trim() });
 }));
 
+// ----- career assets -----
+r.get('/resumes', auth, wrap((req) => S.listResumes(req.uid)));
+r.post('/resumes', auth, wrap((req) => S.saveResume(req.uid, req.body)));
+r.put('/resumes/:id', auth, wrap((req) => S.saveResume(req.uid, { ...req.body, id: Number(req.params.id) })));
+r.get('/career-pages', auth, wrap((req) => S.listCareerPages(req.uid)));
+r.post('/career-pages', auth, wrap((req) => S.saveCareerPage(req.uid, req.body)));
+r.put('/career-pages/:id', auth, wrap((req) => S.saveCareerPage(req.uid, { ...req.body, id: Number(req.params.id) })));
+r.get('/templates', auth, wrap((req) => S.listTemplates(req.uid)));
+r.post('/templates', auth, wrap((req) => S.saveTemplate(req.uid, req.body)));
+r.put('/templates/:id', auth, wrap((req) => S.saveTemplate(req.uid, { ...req.body, id: Number(req.params.id) })));
+
 // ----- companies -----
 r.get('/companies', auth, wrap((req) => S.listCompanies(req.uid)));
 r.post('/companies', auth, wrap((req) => S.addCompany(req.uid, req.body)));

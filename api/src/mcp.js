@@ -21,12 +21,12 @@ const SKILL_KEYS = Object.keys(SKILLS);
 function buildServer(userId) {
   const server = new McpServer(
     { name: 'jobhunt-os', version: '1.0.0' },
-    { instructions: `JobHunt OS stores and tracks the user's job search: Outbound (companies → research → contacts → outreach drafts), Inbound (openings + applications with an ATS score), and Projects (skill-gap projects). Always call get_context first. You do the web research and writing; save results with the tools. After saving, give the user the app links returned. Never invent facts, emails or URLs.` }
+    { instructions: `JobHunt OS stores and tracks the user's job search: Companies (research → contacts → outreach drafts), Applications (openings + applications with an ATS score), and Career assets (skill-gap projects). Always call get_context first. You do the web research and writing; save results with the tools. After saving, give the user the app links returned. Never invent facts, emails or URLs.` }
   );
 
   server.registerTool('get_context', {
     title: 'Get job-search context',
-    description: 'ALWAYS call this first. Returns the user\'s profile (résumé, target roles, college), skill gaps computed by the app, weekly targets, today\'s to-do list, and the companies/contacts already tracked (so you avoid duplicates and can reference IDs).',
+    description: 'ALWAYS call this first. Returns the user\'s profile (resume, target roles, college), skill gaps computed by the app, weekly targets, today\'s to-do list, and the companies/contacts already tracked (so you avoid duplicates and can reference IDs).',
     inputSchema: {},
   }, guard(async () => {
     const d = await S.loadAll(userId);
@@ -34,7 +34,7 @@ function buildServer(userId) {
     return ok(`Context loaded. App: ${W}`, {
       profile: { headline: p.headline, location: p.location, years_exp: p.years_exp, college: p.college, education: p.education,
         target_roles: p.target_roles, target_locations: p.target_locations, target_company_types: p.target_company_types,
-        skills: p.skills, resume_text: (p.resume_text || '').slice(0, 6000) || '(no résumé yet — ask the user to attach one, then call update_profile)' },
+        skills: p.skills, resume_text: (p.resume_text || '').slice(0, 6000) || '(no resume yet — ask the user to attach one, then call update_profile)' },
       gaps: d.gaps.map((g) => ({ role: g.label, readiness_pct: g.readiness, top_gaps: g.top_gaps.map((s) => s.label) })),
       today: d.today.items.slice(0, 10).map((i) => i.title),
       weekly_progress: d.today.progress,
@@ -48,7 +48,7 @@ function buildServer(userId) {
 
   server.registerTool('update_profile', {
     title: 'Update profile',
-    description: 'Save the user\'s profile. Use after the user attaches/pastes their résumé: pass the full résumé as plain text in resume_text, plus extracted skills, headline, education, college. target_roles must use valid role keys: ' + ROLE_KEYS.join(', ') + '. Only include fields you know.',
+    description: 'Save the user\'s profile. Use after the user attaches/pastes their resume: pass the full resume as plain text in resume_text, plus extracted skills, headline, education, college. target_roles must use valid role keys: ' + ROLE_KEYS.join(', ') + '. Only include fields you know.',
     inputSchema: {
       headline: z.string().optional(), location: z.string().optional(), years_exp: z.number().optional(),
       education: z.string().optional(), college: z.string().optional().describe('College/university name, used to find alumni'),
@@ -64,7 +64,7 @@ function buildServer(userId) {
 
   server.registerTool('add_companies', {
     title: 'Add target companies',
-    description: 'Add companies to the user\'s Outbound list. PLAYBOOK (find companies): read get_context for target roles, locations and company types; use web search to find companies that match AND show hiring signals (recent funding, careers page openings, team growth). For each, give a one-line fit_reason tied to the user\'s profile. priority 1 = best fit, 3 = stretch. Duplicates by name are skipped.',
+    description: 'Add companies to the user\'s Companies list. PLAYBOOK (find companies): read get_context for target roles, locations and company types; use web search to find companies that match AND show hiring signals (recent funding, careers page openings, team growth). For each, give a one-line fit_reason tied to the user\'s profile. priority 1 = best fit, 3 = stretch. Duplicates by name are skipped.',
     inputSchema: {
       companies: z.array(z.object({
         name: z.string(), website: z.string().optional(), sector: z.string().optional(), stage: z.string().optional().describe('e.g. Seed, Series B, Public'),
@@ -82,7 +82,7 @@ function buildServer(userId) {
 
   server.registerTool('save_company_research', {
     title: 'Save company research playbook',
-    description: 'Save a research playbook for one company (by id or exact name; created if new). PLAYBOOK (research): use web search for what the company does, business model, recent news (last 6 months), funding, hiring signals (open roles, team growth), and 2–3 outreach angles that connect the user\'s real résumé to the company\'s current priorities. Keep each field short and scannable. Always include source URLs.',
+    description: 'Save a research playbook for one company (by id or exact name; created if new). PLAYBOOK (research): use web search for what the company does, business model, recent news (last 6 months), funding, hiring signals (open roles, team growth), and 2–3 outreach angles that connect the user\'s real resume to the company\'s current priorities. Keep each field short and scannable. Always include source URLs.',
     inputSchema: {
       company: z.union([z.number(), z.string()]).describe('Company id or name'),
       summary: z.string().describe('What they do, model, stage — 2-4 sentences'),
@@ -117,7 +117,7 @@ function buildServer(userId) {
 
   server.registerTool('create_drafts', {
     title: 'Create outreach drafts',
-    description: 'Save outreach message drafts for contacts (by contact id — get ids from get_context or add_contacts). The user reviews, edits and sends them from the app. PLAYBOOK (write outreach): email ≤120 words, LinkedIn note ≤300 characters. One specific hook from the company research, one relevant proof point from the user\'s REAL résumé (never invent), one small clear ask (15-min chat / referral / advice). Tone by type: hr → role fit + ask about openings; alumni → shared college, warm and casual; leader → insight about their business, very short. Subject lines short and specific.',
+    description: 'Save outreach message drafts for contacts (by contact id — get ids from get_context or add_contacts). The user reviews, edits and sends them from the app. PLAYBOOK (write outreach): email ≤120 words, LinkedIn note ≤300 characters. One specific hook from the company research, one relevant proof point from the user\'s REAL resume (never invent), one small clear ask (15-min chat / referral / advice). Tone by type: hr → role fit + ask about openings; alumni → shared college, warm and casual; leader → insight about their business, very short. Subject lines short and specific.',
     inputSchema: {
       drafts: z.array(z.object({
         contact_id: z.number().int(), channel: z.enum(['email', 'linkedin']).optional(),
@@ -136,7 +136,7 @@ function buildServer(userId) {
 
   server.registerTool('add_openings', {
     title: 'Add job openings / programmes',
-    description: 'Add open roles, internships, fellowships or programmes to the Inbound board. PLAYBOOK (find openings): use web search on company careers pages, job boards and programme pages that match the user\'s target roles and locations. Always include the source url, and paste the job description text into jd_text (the app computes an ATS match score from it locally). Include deadline (YYYY-MM-DD) if stated. Use stage "applied" with applied_on if the user says they already applied.',
+    description: 'Add open roles, internships, fellowships or programmes to the Applications board. PLAYBOOK (find openings): use web search on company careers pages, job boards and programme pages that match the user\'s target roles and locations. Always include the source url, and paste the job description text into jd_text (the app computes an ATS match score from it locally). Include deadline (YYYY-MM-DD) if stated. Use stage "applied" with applied_on if the user says they already applied.',
     inputSchema: {
       openings: z.array(z.object({
         company: z.union([z.number(), z.string()]), title: z.string(), url: z.string().optional(), location: z.string().optional(),
@@ -150,7 +150,7 @@ function buildServer(userId) {
       const row = await S.addOpening(userId, o, 'claude');
       out.push({ id: row.id, title: row.title, ats_score: row.ats_score, missing_keywords: (row.ats_missing || []).slice(0, 6), skipped_duplicate: !!row.duplicate });
     }
-    return ok(`Added ${out.length} openings with ATS scores. Board: ${W}/inbound`, out);
+    return ok(`Added ${out.length} openings with ATS scores. Board: ${W}/applications`, out);
   }));
 
   server.registerTool('update_status', {

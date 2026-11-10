@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Target, Trash2, Pencil } from 'lucide-react';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
-import { PageHead, Modal, Form, StatusBadge, ClaudeBadge, Empty } from '../ui.jsx';
+import { PageHead, Modal, Form, StatusBadge, McpBadge, Empty } from '../ui.jsx';
 
 function GapCard({ g, onCreate }) {
   return (
@@ -12,7 +12,7 @@ function GapCard({ g, onCreate }) {
         <h3 className="font-semibold">{g.label}</h3>
         <span className="text-sm"><b className="text-lg">{g.readiness}%</b> <span className="text-slate-500">ready</span></span>
       </div>
-      <div className="h-2 bg-slate-100 rounded-full mt-2 mb-4"><div className="h-2 rounded-full bg-indigo-500" style={{ width: g.readiness + '%' }} /></div>
+      <div className="h-2 bg-slate-100 rounded-full mt-2 mb-4"><div className="h-2 rounded-full bg-[#0f6b4f]" style={{ width: g.readiness + '%' }} /></div>
       <div className="space-y-1.5">
         {g.skills.map((s) => (
           <div key={s.key} className="flex items-center gap-2 text-sm">
@@ -49,18 +49,18 @@ export default function Projects() {
 
   return (
     <div>
-      <PageHead title="Projects" sub="Your skill gaps for each target role, worked out from your résumé and projects. Start a project, and the gap shrinks.">
+      <PageHead title="Career assets" sub="Build the proof of work that closes your most important skill gaps.">
         <button className="btn-primary" onClick={() => setModal('new')}><Plus size={14} />Add project</button>
       </PageHead>
 
       {!data.gaps.length ? (
-        <Empty icon={Target} title="Pick a target role first"><Link className="text-indigo-600" to="/profile">Set target roles in your profile</Link> to see your gaps.</Empty>
+        <Empty icon={Target} title="Pick a target role first"><Link className="text-[#0f6b4f]" to="/profile">Set target roles in your profile</Link> to see your gaps.</Empty>
       ) : (
         <div className="grid md:grid-cols-2 gap-4 mb-8">{data.gaps.map((g) => <GapCard key={g.role} g={g} onCreate={create} />)}</div>
       )}
 
       <h2 className="font-semibold mb-3">Your projects</h2>
-      {!data.projects.length ? <Empty title="No projects yet">Start one from a gap above, add your own, or ask Claude to plan one.</Empty> : (
+      {!data.projects.length ? <Empty title="No projects yet">Start one from a gap above or add your own proof-of-work project.</Empty> : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
           {data.projects.map((p) => {
             const ms = p.milestones || [];
@@ -72,7 +72,7 @@ export default function Projects() {
                   <button className="btn-ghost !p-1" onClick={() => setModal(p)}><Pencil size={13} /></button>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <StatusBadge s={p.status} /><ClaudeBadge source={p.source} />
+                  <StatusBadge s={p.status} /><McpBadge source={p.source} />
                   {(p.skills_covered || []).map((s) => <span key={s} className="chip bg-slate-100 text-slate-600">{meta?.skills?.[s] || s}</span>)}
                 </div>
                 {p.description && <p className="text-sm text-slate-600 mt-2">{p.description}</p>}

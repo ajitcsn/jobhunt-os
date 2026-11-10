@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Copy, Check, X } from 'lucide-react';
+import { Cable, Copy, Check, X } from 'lucide-react';
 
-export function ClaudeBadge({ source }) {
+export function McpBadge({ source }) {
   if (source !== 'claude') return null;
-  return <span className="chip bg-violet-100 text-violet-700 gap-1"><Sparkles size={11} />via Claude</span>;
+  return <span className="chip bg-emerald-100 text-emerald-800 gap-1"><Cable size={11} aria-hidden="true" />via MCP</span>;
 }
 
 const TYPE_STYLE = {
@@ -12,10 +12,11 @@ const TYPE_STYLE = {
 export const TypeBadge = ({ type }) => <span className={`chip ${TYPE_STYLE[type] || TYPE_STYLE.other}`}>{type === 'hr' ? 'HR' : type}</span>;
 
 const STATUS_STYLE = {
-  shortlisted: 'bg-slate-100 text-slate-600', researched: 'bg-indigo-100 text-indigo-700', contacted: 'bg-sky-100 text-sky-700', archived: 'bg-slate-100 text-slate-400',
+  shortlisted: 'bg-slate-100 text-slate-600', researched: 'bg-emerald-100 text-emerald-800', contacted: 'bg-sky-100 text-sky-700', archived: 'bg-slate-100 text-slate-400',
   new: 'bg-slate-100 text-slate-600', drafted: 'bg-amber-100 text-amber-800', sent: 'bg-sky-100 text-sky-700', replied: 'bg-emerald-100 text-emerald-700', closed: 'bg-slate-100 text-slate-400',
   draft: 'bg-amber-100 text-amber-800',
-  idea: 'bg-slate-100 text-slate-600', in_progress: 'bg-indigo-100 text-indigo-700', done: 'bg-emerald-100 text-emerald-700',
+  saved: 'bg-slate-100 text-slate-600', applied: 'bg-sky-100 text-sky-700', interview: 'bg-emerald-100 text-emerald-800', offer: 'bg-emerald-100 text-emerald-800', rejected: 'bg-rose-100 text-rose-700', ghosted: 'bg-slate-100 text-slate-500',
+  idea: 'bg-slate-100 text-slate-600', in_progress: 'bg-emerald-100 text-emerald-800', done: 'bg-emerald-100 text-emerald-700',
 };
 export const StatusBadge = ({ s }) => <span className={`chip ${STATUS_STYLE[s] || 'bg-slate-100'}`}>{String(s).replace('_', ' ')}</span>;
 
@@ -41,11 +42,11 @@ export function Modal({ title, onClose, children }) {
     return () => window.removeEventListener('keydown', h);
   }, [onClose]);
   return (
-    <div className="fixed inset-0 z-40 bg-slate-900/30 flex items-start justify-center p-4 pt-[10vh]" onMouseDown={onClose}>
-      <div className="card w-full max-w-lg p-5 shadow-xl max-h-[80vh] overflow-auto" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-40 bg-slate-900/30 flex items-end md:items-start justify-center p-0 md:p-4 md:pt-[10vh]" onMouseDown={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={title} className="card w-full max-w-lg p-5 shadow-xl max-h-[88vh] md:max-h-[80vh] overflow-auto rounded-b-none md:rounded-xl" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">{title}</h3>
-          <button className="btn-ghost !p-1" onClick={onClose}><X size={16} /></button>
+          <button className="btn-ghost !p-1" aria-label="Close dialog" onClick={onClose}><X size={16} /></button>
         </div>
         {children}
       </div>
@@ -65,16 +66,16 @@ export function Form({ fields, initial = {}, onSubmit, submitLabel = 'Save' }) {
     }}>
       {fields.map((f) => (
         <div key={f.k}>
-          <label className="label">{f.label}{f.required && ' *'}</label>
+          <label className="label" htmlFor={`field-${f.k}`}>{f.label}{f.required && ' *'}</label>
           {f.type === 'textarea' ? (
-            <textarea className="input min-h-[90px]" rows={f.rows || 4} value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: e.target.value })} required={f.required} placeholder={f.placeholder} />
+            <textarea id={`field-${f.k}`} name={f.k} className="input min-h-[90px]" rows={f.rows || 4} value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: e.target.value })} required={f.required} placeholder={f.placeholder} />
           ) : f.type === 'select' ? (
-            <select className="input" value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: e.target.value })} required={f.required}>
+            <select id={`field-${f.k}`} name={f.k} className="input" value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: e.target.value })} required={f.required}>
               {!f.required && <option value="">—</option>}
               {f.options.map((o) => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
             </select>
           ) : (
-            <input className="input" type={f.type || 'text'} value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value })} required={f.required} placeholder={f.placeholder} />
+            <input id={`field-${f.k}`} name={f.k} className="input" type={f.type || 'text'} value={v[f.k] ?? ''} onChange={(e) => setV({ ...v, [f.k]: f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value })} required={f.required} placeholder={f.placeholder} />
           )}
         </div>
       ))}
@@ -106,12 +107,12 @@ export function PageHead({ title, sub, children }) {
   );
 }
 
-export function ClaudePrompt({ text }) {
+export function McpPrompt({ text }) {
   return (
-    <div className="rounded-lg bg-violet-50 border border-violet-200 p-3 text-sm flex items-start gap-2">
-      <Sparkles size={16} className="text-violet-600 mt-0.5 shrink-0" />
-      <div className="flex-1 text-violet-900">“{text}”</div>
-      <CopyButton text={text} label="Copy" className="btn-ghost !py-0.5 text-violet-700" />
+    <div className="rounded-lg bg-[#eef6f0] border border-[#cde3d4] p-3 text-sm flex items-start gap-2">
+      <Cable size={16} className="text-[#0f6b4f] mt-0.5 shrink-0" aria-hidden="true" />
+      <div className="flex-1 text-[#173d2d]">{text}</div>
+      <CopyButton text={text} label="Copy prompt" className="btn-ghost !py-0.5 text-[#0f6b4f]" />
     </div>
   );
 }

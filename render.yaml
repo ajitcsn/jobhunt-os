@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: jobhunt-api
+    runtime: node
+    rootDir: api
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run seed && npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: jobhunt-db, property: connectionString }
+      - key: JWT_SECRET
+        generateValue: true
+      - key: TZ
+        value: Asia/Kolkata
+      - key: WEB_URL
+        sync: false
+      - key: API_URL
+        sync: false
+databases:
+  - name: jobhunt-db
+    plan: free

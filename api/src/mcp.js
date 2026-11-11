@@ -59,7 +59,7 @@ function buildServer(userId) {
     },
   }, guard(async (a) => {
     await S.updateProfile(userId, { ...a, onboarded: true }, 'claude');
-    return ok(`Profile saved. Skill gaps and ATS scores were recalculated. View: ${W}/profile`);
+    return ok(`Profile saved. Skill gaps and ATS scores were recalculated. View: ${W}/setup/profile`);
   }));
 
   server.registerTool('add_companies', {
@@ -77,7 +77,7 @@ function buildServer(userId) {
       const row = await S.addCompany(userId, c, 'claude');
       out.push({ id: row.id, name: row.name, skipped_duplicate: !!row.duplicate, link: `${W}/outbound/companies/${row.id}` });
     }
-    return ok(`Added ${out.filter((o) => !o.skipped_duplicate).length} companies. Open: ${W}/outbound`, out);
+    return ok(`Added ${out.filter((o) => !o.skipped_duplicate).length} companies. Open: ${W}/outbound/companies`, out);
   }));
 
   server.registerTool('save_company_research', {

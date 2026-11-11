@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Upload, Save } from 'lucide-react';
-import { useApp } from '../App.jsx';
+import { useApp } from '../ctx.js';
 import { api } from '../api.js';
 import { PageHead, McpPrompt } from '../ui.jsx';
 

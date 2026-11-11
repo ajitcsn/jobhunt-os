@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cable, Send, BriefcaseBusiness, FolderKanban } from 'lucide-react';
 import { api, auth } from '../api.js';
+import { LogoMark } from '../ui.jsx';
 
 export default function Login() {
   const [mode, setMode] = useState('login');
@@ -14,14 +15,14 @@ export default function Login() {
     try {
       const r = await api(`/auth/${mode}`, { method: 'POST', body: v });
       auth.save(r.token);
-      nav(mode === 'signup' ? '/profile' : '/');
+      nav(mode === 'signup' ? '/setup/profile' : '/');
     } catch (x) { setErr(x.message); }
   };
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
       <div className="bg-[#143d30] text-white p-8 md:p-14 flex flex-col justify-center">
-        <div className="font-bold text-xl flex items-center gap-2 mb-8"><span className="w-8 h-8 rounded-lg bg-white text-[#0f6b4f] grid place-items-center">J</span>JobHunt OS</div>
+        <div className="font-bold text-xl flex items-center gap-2 mb-8"><LogoMark size={36} />JobHunt OS</div>
         <h1 className="text-3xl md:text-4xl font-semibold leading-tight">Research smarter. Follow through better.</h1>
         <p className="mt-4 text-emerald-50/80 max-w-md">Your connected assistant researches and writes. JobHunt keeps each company, contact, application, and follow-up in a system you control.</p>
         <div className="mt-8 space-y-3 text-sm text-emerald-50/80">
